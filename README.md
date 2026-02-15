@@ -57,24 +57,39 @@ Enally AI 2.0 is a powerful, completely free enterprise-grade API that provides:
 ✅ Research and analysis  
 ✅ Content creation for student blogs  
 
+### Quick Links
+- **🏠 Main Website:** https://ai.enally.in/
+- **🔑 Request API Key:** https://ai.enally.in/api
+- **🧪 Test API:** https://ai.enally.in/test-api
+- **📚 GitHub Repository:** https://github.com/03prashantpk/enally.in-ai
+- **📖 Full Documentation:** You're reading it!
+
 ### Prerequisites
-- A validated email address
-- Your project domain (for whitelisting)
-- API key (request via simple form at https://enally.in/backend/api.php)
-- HTTPS recommended for production
+- A validated email address (OTP verification)
+- Your project domain (for whitelisting and security)
+- API key (request at https://ai.enally.in/api)
+- HTTPS recommended for production deployments
 
 ---
 
 ## 🔐 Authentication
 
-All API requests require two authentication headers to ensure secure access.
+All API requests require authentication headers to ensure secure access. Our security system validates both your API key and origin domain to prevent unauthorized usage.
+
+### Security Features
+
+✅ **Origin Validation** - Each API key is tied to specific whitelisted domains  
+✅ **Rate Limiting** - 30 requests per minute, 500 requests per hour per domain  
+✅ **Key-Domain Binding** - API keys only work from their registered domains  
+✅ **Automatic CORS** - Proper CORS headers for whitelisted origins only  
+✅ **Request Logging** - All requests are logged for security auditing  
 
 ### Required Headers
 
 | Header | Value | Description |
 |--------|-------|-------------|
 | `Content-Type` | `application/json` | The format of the request body. |
-| `X-API-Key` | `enally_your_api_key_here` | Your unique API key. |
+| `X-API-Key` | `enally_your_api_key_here` | Your unique API key (starts with `enally_`). |
 | `Origin` | `https://your-domain.com` | The domain whitelisted for your API key. |
 
 ### Example Headers
@@ -85,7 +100,15 @@ X-API-Key: enally_abc123def456...
 Origin: https://your-website.com
 ```
 
-> **Security Note:** Never expose your API key in client-side JavaScript. Always proxy requests through your backend server.
+### Getting Your API Key
+
+1. Visit **https://ai.enally.in/api** to request an API key
+2. Fill in your email, name, domain, and project details
+3. Verify your email via OTP
+4. Your domain will be whitelisted and you'll receive your API key
+5. Test your integration at **https://ai.enally.in/test-api**
+
+> **Security Note:** Never expose your API key in client-side JavaScript. Always proxy requests through your backend server. Localhost testing requires configuration - contact us for development access.
 
 ---
 
@@ -705,61 +728,79 @@ All errors follow this consistent format:
 
 #### 1. Invalid API Key (403)
 
-**Cause:** Wrong API key or missing `X-API-Key` header.
+**Cause:** Wrong API key, missing `X-API-Key` header, or API key format is incorrect.
 
 **Response:**
 ```json
 {
   "error": {
-    "message": "Access denied: Invalid credentials or origin not whitelisted",
+    "message": "Access denied: Invalid API key",
     "code": 403,
     "request_id": "a1b2c3d4e5f6g7h8",
-    "timestamp": "2026-02-14T12:35:46+00:00"
+    "timestamp": "2026-02-14T12:35:46+00:00",
+    "details": "API key must start with 'enally_' and be valid"
   }
 }
 ```
 
-**Solution:** Verify your API key is correct.
+**Solution:** 
+- Verify your API key is correct and starts with `enally_`
+- Ensure the `X-API-Key` header is included in your request
+- Request a new API key at https://ai.enally.in/api if needed
 
 ---
 
-#### 2. Origin Not Whitelisted (403)
+#### 2. Origin Not Whitelisted or Key-Origin Mismatch (403)
 
-**Cause:** Domain in `Origin` header is not authorized.
+**Cause:** The origin domain in the `Origin` header doesn't match the domain registered for your API key.
 
 **Response:**
 ```json
 {
   "error": {
-    "message": "Access denied: Invalid credentials or origin not whitelisted",
+    "message": "Access denied: Origin not whitelisted for this API key",
     "code": 403,
     "request_id": "a1b2c3d4e5f6g7h8",
-    "timestamp": "2026-02-14T12:35:46+00:00"
+    "timestamp": "2026-02-14T12:35:46+00:00",
+    "details": "Each API key is bound to specific whitelisted domains"
   }
 }
 ```
 
-**Solution:** Contact services@enally.in to whitelist your domain.
+**Solution:** 
+- Ensure the `Origin` header matches your registered domain exactly
+- API keys only work from their authorized domains
+- Contact services@enally.in to update your whitelisted domain
+- For testing, use the interactive tester at https://ai.enally.in/test-api
 
 ---
 
 #### 3. Rate Limit Exceeded (429)
 
-**Cause:** Too many requests per minute (>30).
+**Cause:** Exceeded 30 requests per minute or 500 requests per hour limit.
 
 **Response:**
 ```json
 {
   "error": {
-    "message": "Rate limit exceeded. Maximum: 30 requests per minute",
+    "message": "Rate limit exceeded. Limits: 30/minute, 500/hour",
     "code": 429,
     "request_id": "a1b2c3d4e5f6g7h8",
-    "timestamp": "2026-02-14T12:35:46+00:00"
+    "timestamp": "2026-02-14T12:35:46+00:00",
+    "retry_after": 12,
+    "limits": {
+      "per_minute": 30,
+      "per_hour": 500
+    }
   }
 }
 ```
 
-**Solution:** Implement exponential backoff and request throttling.
+**Solution:** 
+- Implement exponential backoff and request throttling
+- Use the `retry_after` value (in seconds) before retrying
+- Cache responses when possible to reduce API calls
+- Optimize your request patterns and consider batching
 
 ---
 
@@ -1527,22 +1568,38 @@ We're proving that sustainable, free AI for students is possible—not through a
 |--------|-------|
 | Cost to Students | ₹0 Forever |
 | Credit Card Needed | ❌ Never |
-| Active Students | 5,000+ |
-| API Requests Served | 1,000,000+ |
-| Uptime Guarantee | 100% |
-| Supported Languages | 10+ |
-| Free Tiers Available | All Tiers |
+| API Requests Successfully Served | 1,000,000+ |
+| Current Uptime | 99.9%+ |
+| Rate Limits | 30/min, 500/hour per domain |
+| Security Features | Origin validation, Key-Domain binding, CORS |
+| Rate Limiting | ✅ Enabled |
+| Request Logging | ✅ Enabled |
+| Open Source | ✅ GitHub available |
 
 ---
 
 ## 🚀 Getting Started Right Now
 
-1. **Visit:** https://enally.in
-2. **Sign up:** Provide email (no credit card!)
-3. **Verify:** Check your email for OTP
-4. **Get API key:** Follow the simple form
-5. **Start building:** Use the documentation and code examples
-6. **Join community:** Share your projects and get feedback
+1. **Visit:** https://ai.enally.in/
+2. **Request API Key:** Go to https://ai.enally.in/api
+3. **Fill Details:** Enter email, name, domain, and project details
+4. **Verify Email:** Complete OTP verification
+5. **Receive Key:** Get your API key and domain whitelist confirmation
+6. **Test API:** Use https://ai.enally.in/test-api to test your integration
+7. **Start Building:** Follow documentation and code examples
+8. **Explore GitHub:** https://github.com/03prashantpk/enally.in-ai for samples
+
+---
+
+## 🔗 Important Links
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Main Website** | https://ai.enally.in/ | Home page and features |
+| **API Request Form** | https://ai.enally.in/api | Get your free API key |
+| **API Testing Interface** | https://ai.enally.in/test-api | Interactive API playground |
+| **GitHub Repository** | https://github.com/03prashantpk/enally.in-ai | Documentation & examples |
+| **Support Email** | services@enally.in | Technical support |
 
 ---
 
